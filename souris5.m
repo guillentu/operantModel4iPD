@@ -80,7 +80,7 @@ for k = 1:Ns
        * exp(V(i)*a(tab)); % impact du CS     
     end
    
-    
+    %%%
 end
 figure(tab)
 subplot(2,3,figa)
