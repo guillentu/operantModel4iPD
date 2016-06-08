@@ -1,13 +1,13 @@
-alpha = 0.8 ;          %% constante décroissance LTM
-N = 30;                 %% nombre d'essais par session
-Ns = 10;                 %% nombre de sessions
-ka = [0.05 0.06 0.07 0.08 0.09 0.1 0.11 0.12 0.13 0.14];                 %% constante décroissance liée à l'inactivité
-Moy = 3;                % premier terme session i+1 = moyenne sur Moy terme
-a = 0.18;               % multiplie le gain
-facteur = 0.6;          % ce qu'il reste de la session précédente
+alpha = 0.8 ;           %% constante de decaer 
+N = 30;                 %% numeros de trials por sesiones
+Ns = 10;                %% numeros de sesiones
+ka = [0.35 0.34 0.33 0.32 0.31 0.30 .29 .28 .27 .26 .25];                 %% constante de decaer vinculado a la inactividad
+Moy = 3;                % primero termo de la sesion i+1 = promedio hizo sobre Moy termos de la ultima ( Moy = numero )
+a = 0.18;               % multiplica le refuerzo
+facteur = 0.6;          % por ciento de lo que queda de la ultima sesion en la memoria ( == saving )
 A = zeros(2,N*Ns);      
 A(:,1) = 1;
-T_1 = ones(N,1);        %% temps entre deux trials (s)
+T_1 = ones(N,1);        %% tiempo entre dos trials
 T_2 = ones(N,1);
 
 for tab=1:10
@@ -33,13 +33,13 @@ for k = 1:Ns
         
        %%% ELECCION DE LA PALANCA
        if ((levier(i-1)==1)&&(U(i-1)-U(i-2)-V(i-2)>=0))||((levier(i-1)==2)&&(V(i-1)-U(i-2)-V(i-2)<0));
-           levier(i)=(floor(0.2*randi(7)))+1  ;
+           levier(i)=(floor(0.145*randi(7)))+1  ;
        elseif ((levier(i-1)==2)&&(V(i-1)-U(i-2)-V(i-2)>=0))||((levier(i-1)==1)&&(U(i-1)-U(i-2)-V(i-2)<0));
-           levier(i)=abs((floor(0.2*randi(7)))-2);    
+           levier(i)=abs((floor(0.145*randi(7)))-2);    
        end
        
        
-       %%% CONTADOR PARA
+       %%% CONTADOR PARA PALANCA NO USADA
        if levier(i) == 1
            cpt_1 = 0;
            cpt_2 = cpt_2 +1;
@@ -81,25 +81,25 @@ for k = 1:Ns
               
       %%% INICIALIZACION
       if k>1
-        A(1,(k-1)*N+1)=sum(A(1,((k-1)*N-Moy):((k-1)*N)))/Moy*facteur; % proportion retenue de l'exp précédente
+        A(1,(k-1)*N+1)=sum(A(1,((k-1)*N-Moy):((k-1)*N)))/Moy*facteur; % primero termo de la nueva sesion
         A(2,(k-1)*N+1)=sum(A(2,((k-1)*N-Moy):((k-1)*N)))/Moy*facteur;
       end
       
 
       %%% ITERACION
        A(1,(k-1)*N+i) =  min( ... 
-        ( A(1,(k-1)*N+1) )/alpha/T_1(i)   ... terme initial session
-       *( 1-exp(-alpha*T_1(i)*(sum(U(1:i)+1))) ) ^ (levier(i)==1)   ... apprentissage
-       *( exp(-ka(tab)*cpt_1)*A(1,(k-1)*N+i-1)) ^ abs((levier(i)==1)-1)   ... décroissance si non usité
-       * exp(a*U(i)) ...
-       ,1000);%  % impact du CS 
+        ( A(1,(k-1)*N+1) )/alpha   ... primero termo / alpha cf libro
+       *( 1-exp(-alpha*T_1(i)*(sum(U(1:i)+1))) ) ^ (levier(i)==1)   ... aprendizaje
+       *( exp(-ka(tab)*cpt_1)*A(1,(k-1)*N+i-1)) ^ abs((levier(i)==1)-1)   ... disminucion vinculada a la inactividad
+       * exp(a*U(i)) ... impacto del refuerzo
+       ,1000); 
    
         A(2,(k-1)*N+i) =  min( ... 
-        ( A(2,(k-1)*N+1) )/alpha/T_2(i)   ... terme initial session
-       *( 1-exp(-alpha*T_2(i)*(sum(V(1:i)+1))) ) ^ (levier(i)==2)   ... apprentissage
-       *( exp(-ka(tab)*cpt_2)*A(2,(k-1)*N+i-1)) ^ abs((levier(i)==2)-1)   ... décroissance si non usité
+        ( A(2,(k-1)*N+1) )/alpha   ... 
+       *( 1-exp(-alpha*T_2(i)*(sum(V(1:i)+1))) ) ^ (levier(i)==2)   ... 
+       *( exp(-ka(tab)*cpt_2)*A(2,(k-1)*N+i-1)) ^ abs((levier(i)==2)-1)   ... 
        * exp(a*V(i)) ...
-       ,1000);%  % impact du CS
+       ,1000);
    
 
     end
@@ -107,7 +107,7 @@ end
 
 
 figure(tab)
-subplot(2,3,figa)
+subplot(2,3,figa)   
 
 plot(1:N*Ns,A(1,:),1:N*Ns,A(2,:));
 xlabel('\bf{Numero del estimulo}','FontSize',12);
