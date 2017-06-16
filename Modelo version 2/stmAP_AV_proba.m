@@ -20,32 +20,38 @@ alphaAP = 0.5 ;
 betaAP  = 0.125 ;
 alphaAV = 0.25 ;
 betaAV  = 0.125 ;
-gamma = 0.0067; %0.00134; %0.0067;  %10/5 sesiones
+gamma = 0.0067; %0.00134; %0.0067;  %2/1 sesiones
 deltaAP = 0.25 ;
 deltaAV = 0.125 ;
 deltaAV2 = 0.25 ;
 
 tau = 0.9 ;
-R1 = floor(10*(1-exp(-tau* 1 )));
-R2 = floor(10*(1-exp(-tau* 2 )));
+R1 = floor(10*(1-exp(-tau* 1 ))); %tiempo de refuezo para R
+R2 = floor(10*(1-exp(-tau* 2 ))); %tiempo de refuezo para T
 
-l1 = 20+R1;
-l2 = 48+R2;
+l1 = 20+R1; %20 = duración entre trials
+l2 = 48+R2; %48 = 20 entre trials + 8 de castigo + 20 entre trials
 
-suma = 0;
+suma = 0; %suma es un valor necesaria para calcular max1 y min1
 for i = 1:5
   suma = suma+alphaAP*(1-betaAP)^(i-1);
 end
-max1 = suma*(1+(1-betaAP)^(25));
-min1 = max1*(1-betaAP)^20;
 
-max2 = 0;
+max1 = 0; %maximum de stm1
+min1 = 0; %minimum de stm1
+for i = 1:5
+  max1 = suma + min1*(1-betaAP)^5;
+  min1 = max1*(1-betaAP)^20;
+end
+
+max2 = 0; %maximum de stm2
 for i = 1:8
   max2 = max2+alphaAP*(1-betaAP)^(i-1);
 end
 
-S1 = (((max1-min1)+0.9*l1)/2)+min1*l1;
-S2 = (max2+0.46*l2)/2;
+S1 = (((max1-min1)*(0.72*l1))/2)+min1*l1; %calcul de la surfacia del triangulo más la de el rectangulo
+                                          %0.75*l1 = 75% de l1 (base)    
+S2 = (max2*(0.46*l2))/2; %calcul de la superficia del triangulo
 
 stmAP_1_medio = S1/l1;
 stmAP_2_medio = S2/l2;
@@ -57,7 +63,7 @@ A2max = (deltaAP/gamma)*stmAP_2_medio;
 Ntrial  =  30 ;
 Nses    =  15 ;
 Ntest   =  5 ;
-saving  =  0.9 ;
+saving  =  0.2 ;
 
 %%%%%% INICIALIZACION
 palanca = zeros(2,1);
@@ -65,46 +71,31 @@ Rf_1=zeros(10,1);
 Rf_2=zeros(10,1);
 A1=zeros(1,Ntest);
 A2=zeros(1,Ntest);
-stmAP_1=zeros(2,Ntest);
-stmAP_2=zeros(2,Ntest);
-stmAV_1=zeros(2,Ntest);
-stmAV_2=zeros(2,Ntest);
-d=1;
-xAP_1=zeros(30,1);
-xAP_2=zeros(30,1);
-xAV_1=zeros(30,1);
-xAV_2=zeros(30,1);
+stmAP_1=zeros(1,Ntest);
+stmAP_2=zeros(1,Ntest);
+stmAV_1=zeros(1,Ntest);
+stmAV_2=zeros(1,Ntest);
 sesion = zeros(Nses,1);
-terminal_sesion=zeros(Nses,1);
 nb_coop = zeros(Nses,Ntest);
 
 
 %% INICIO DE LAS ITERATIONS
 for l = 1:Ntest
   Num=0;
-  for k = 2:Nses+1
-    Rf_1(1)=6;
-    Rf_2(1)=6;
+  for k = 1:Nses
     i=2;
-    duracion = [1,20*ones(1,Ntrial)];
-    contador = 1;
+    duracion = [1,1,20*ones(1,Ntrial+2)];
+    d = 1;
+    contador = 2;
     palanca(1)=1;
-    palanca(2)=randi(2);
     
-    if k>2
-      
+    if k>1
       A1(Num+1,l)=A1(Num,l);
       A2(Num+1,l)=A2(Num,l);
       stmAP_1(Num+1,l)=saving*stmAP_1(Num,l);
       stmAP_2(Num+1,l)=saving*stmAP_2(Num,l);
       stmAV_1(Num+1,l)=saving*stmAV_1(Num,l);
       stmAV_2(Num+1,l)=saving*stmAV_2(Num,l);
-      %%% ELECCION DE LA PRIMERA PALANCA 
-      if A1(Num,1)>A2(Num,1)
-        palanca(2)=1;
-      else
-        palanca(2)=2;
-      end
     end       
     
     for j=2:1000
@@ -112,37 +103,38 @@ for l = 1:Ntest
         contador = 1 ;
         
         i = i+1 ;
+        J = j ;
         
-        P1(i,k)=0.5*(1-exp(-(5*A1((j-1)+Num,l))/A1max))+0.5;
+        P1(i,k)=0.5*(1-exp(-(5*A1((j-1)+Num,l))/A1max))+0.5; %probabilidad en exponential
         P2(i,k)=0.5*(1-exp(-(5*A2((j-1)+Num,l))/A2max))+0.5;
 
-%        P1(i,k)=0.5*((A1((j-1)+Num,l)/A1max)+1);
+%        P1(i,k)=0.5*((A1((j-1)+Num,l)/A1max)+1); %probabilidad en linear
 %        P2(i,k)=0.5*((A2((j-1)+Num,l)/A2max)+1);
         
         a = rand ;
         
         %%% ELECCION DE LA PALANCA %%%
         if abs(A1((j-1)+Num,l)-A2((j-1)+Num,l))<1
-          palanca(i)=randi(2);
+          palanca(i-1)=randi(2);
         else
           if A1((j-1)+Num,l)>A2((j-1)+Num,l)
             if a>=P1(i,k)
-              palanca(i)=2;
+              palanca(i-1)=2;
             else
-              palanca(i)=1;
+              palanca(i-1)=1;
             end
           else
             if a>=P2(i,k)
-              palanca(i)=1;
+              palanca(i-1)=1;
             else
-              palanca(i)=2;
+              palanca(i-1)=2;
             end
           end
         end
 
         %%% REFUERZO %%%
            %  Experimental     Oponente
-        if (palanca(i)==1)&&(palanca(i-1)==1) %% R + 1p
+        if (palanca(i-1)==1)&&(palanca(i-2)==1) %% R + 1p
           Rf_1(i)=floor(10*(1-exp(-tau* 1 )));
           Rf_2(i)=0;
           d=Rf_1(i);
@@ -150,19 +142,19 @@ for l = 1:Ntest
           xAP_2=[zeros(1,Rf_1(i)),zeros(1,duracion(i))];
           xAV_1=[zeros(1,Rf_1(i)),zeros(1,duracion(i))];
           xAV_2=[zeros(1,Rf_1(i)),zeros(1,duracion(i))];
-        elseif (palanca(i)==1)&&(palanca(i-1)==2) %% S + 8s
+        elseif (palanca(i-1)==1)&&(palanca(i-2)==2) %% S + 8s
           d=8;
           xAP_1=[zeros(1,d),zeros(1,duracion(i))];
           xAP_2=[zeros(1,d),zeros(1,duracion(i))];
           xAV_1=[ones(1,d),zeros(1,duracion(i))];
           xAV_2=[zeros(1,d),zeros(1,duracion(i))];
-        elseif (palanca(i)==2)&&(palanca(i-1)==2) %% P + 4s
+        elseif (palanca(i-1)==2)&&(palanca(i-2)==2) %% P + 4s
           d=4;
           xAP_1=[zeros(1,d),zeros(1,duracion(i))];
           xAP_2=[zeros(1,d),zeros(1,duracion(i))];
           xAV_1=[zeros(1,d),zeros(1,duracion(i))];
           xAV_2=[ones(1,d),zeros(1,duracion(i))];
-        elseif (palanca(i)==2)&&(palanca(i-1)==1) %% T + 2p
+        elseif (palanca(i-1)==2)&&(palanca(i-2)==1) %% T + 2p
           Rf_1(i)=0;
           Rf_2(i)=floor(10*(1-exp(-tau* 2 )));
           d=Rf_2(i);
@@ -185,28 +177,31 @@ for l = 1:Ntest
       A1(j+Num,l)=(1-gamma)*A1((j-1)+Num,l)+deltaAP*stmAP_1(j+Num,l)-deltaAV*stmAV_1(j+Num,l);
       A2(j+Num,l)=(1-gamma)*A2((j-1)+Num,l)+deltaAP*stmAP_2(j+Num,l)-deltaAV2*stmAV_2(j+Num,l);
       
-      if i==Ntrial+1
-        break
+      if i==Ntrial+2
+        if j==J+d+19
+          break
+        end
       end
       
     end
     
     %%% CONTADOR DE A QUE J SE CAMBIA LA SESION
-    sesion(k-1,l)=Num+j;
+    sesion(k,l)=j+Num;
 
     %%% DEFINICION DE NUM
-    compteur = 0 ;
-    for i=1:length(A1(:,l))
-      if A1(i,l)~=0
-        compteur = compteur +1;
-      end
-    end
-    Num=compteur;
+%    compteur = 0 ;
+%    for i=1:length(A1(:,l))
+%      if A1(i,l)~=0
+%        compteur = compteur +1;
+%      end
+%    end
+%    Num=compteur;
+    Num = j+Num;
     Sizemat = length(A1);
     
     for j = 1:Ntrial
       if palanca(j)==1
-        nb_coop(k-1,l)= nb_coop(k-1,l)+1;
+        nb_coop(k,l)= nb_coop(k,l)+1;
       end
     end
   end
@@ -275,20 +270,6 @@ porcentaje_coop_experimento=zeros(Ntest,1);
 for k = 1:Ntest
   porcentaje_coop_experimento(k)=sum(nb_coop(:,k))/(Ntrial*Nses)*100;
 end
-
-
-
-
-
-%for i=1:Ntest
-%  terminal_sesion(1,i)=sesion(2,i);
-%  for j=3:Nses
-%    terminal_sesion(j,i)=sesion(j,i)+terminal_sesion(j-1,i);
-%  end
-%end
-
-
-
 
 
 %%% DEMOSTRACION 
