@@ -12,7 +12,7 @@ clear
 %%%
 
 %% 2 - On fait varier beta - On choisit un limrand qui marche un median un
-%% qui marche pas a quelle vitesse s'eteint la stm, memoire courte - si on a plus de memoire, elle se décide plus vite
+%% qui marche pas a quelle vitesse s'eteint la stm, memoire courte - si on a plus de memoire, elle se dï¿½cide plus vite
 
 %% INICIALIZATION
 %%%%%% CONSTANTES DE DECAE / SUBE
@@ -25,22 +25,22 @@ deltaAP = 0.25 ;
 deltaAV = 0.125 ;
 deltaAV2 = 0.25 ;
 
-tau = 0.9 ;
+tau = 0.8 ;
 R1 = floor(10*(1-exp(-tau* 1 ))); %tiempo de refuezo para R
 R2 = floor(10*(1-exp(-tau* 2 ))); %tiempo de refuezo para T
 
-l1 = 20+R1; %20 = duración entre trials
+l1 = 20+R1; %20 = duraciï¿½n entre trials
 l2 = 48+R2; %48 = 20 entre trials + 8 de castigo + 20 entre trials
 
 suma = 0; %suma es un valor necesaria para calcular max1 y min1
-for i = 1:5
-  suma = suma+alphaAP*(1-betaAP)^(i-1);
+for i = 1:R1
+  suma = suma+alphaAP*(1-betaAP)^(i-1); %% maximo por iteraciones
 end
 
 max1 = 0; %maximum de stm1
 min1 = 0; %minimum de stm1
-for i = 1:5
-  max1 = suma + min1*(1-betaAP)^5;
+for i = 1:10
+  max1 = suma + min1*(1-betaAP)^R1;
   min1 = max1*(1-betaAP)^20;
 end
 
@@ -49,7 +49,7 @@ for i = 1:8
   max2 = max2+alphaAP*(1-betaAP)^(i-1);
 end
 
-S1 = (((max1-min1)*(0.72*l1))/2)+min1*l1; %calcul de la surfacia del triangulo más la de el rectangulo
+S1 = (((max1-min1)*(0.72*l1))/2)+min1*l1; %calcul de la surfacia del triangulo mï¿½s la de el rectangulo
                                           %0.75*l1 = 75% de l1 (base)    
 S2 = (max2*(0.46*l2))/2; %calcul de la superficia del triangulo
 
@@ -90,16 +90,16 @@ for l = 1:Ntest
     palanca(1)=1;
     
     if k>1
-      A1(Num+1,l)=A1(Num,l);
-      A2(Num+1,l)=A2(Num,l);
-      stmAP_1(Num+1,l)=saving*stmAP_1(Num,l);
-      stmAP_2(Num+1,l)=saving*stmAP_2(Num,l);
-      stmAV_1(Num+1,l)=saving*stmAV_1(Num,l);
-      stmAV_2(Num+1,l)=saving*stmAV_2(Num,l);
+      A1(Num+1,l)=saving*A1(Num,l);
+      A2(Num+1,l)=saving*A2(Num,l);
+      stmAP_1(Num+1,l)=0*stmAP_1(Num,l);
+      stmAP_2(Num+1,l)=0*stmAP_2(Num,l);
+      stmAV_1(Num+1,l)=0*stmAV_1(Num,l);
+      stmAV_2(Num+1,l)=0*stmAV_2(Num,l);
     end       
     
     for j=2:1000
-      if contador == duracion(i)+d
+      if contador == duracion(i) + d
         contador = 1 ;
         
         i = i+1 ;
@@ -303,10 +303,10 @@ for i=1:Ntest
 end
 hold off
 
-%%% problème de temps, pas le temps de décroitre du coup redémarre plus
+%%% problï¿½me de temps, pas le temps de dï¿½croitre du coup redï¿½marre plus
 %%% haut CQFD
 %%%% CASTIGO DE TIEMPO 
 %%%% CUANTO VECES ELIGE COOPERATION
-%%% Pour chaque session récupérer le nombre de coopération et tracer la
+%%% Pour chaque session rï¿½cupï¿½rer le nombre de coopï¿½ration et tracer la
 %%% courbe correspondante 
 

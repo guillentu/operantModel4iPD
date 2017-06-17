@@ -16,30 +16,6 @@ clear
 %% 1 - 
 %%%
 %%% 
-
-%% 
-%% 
-
-%% INICIALIZATION
-%%%%%% CONSTANTES DE DECAIMIENTO
-alpha = 1;
-beta  = 0.125 ;
-gamma = 0.0067;%0.025 ; 
-delta = 1;
-
-%%%%%% CONSTANTES DE SESIONES
-Ntrial  =  1 ;   %% un trial de 3600 segundos
-tTrial  =  3600; %% en segundos
-tResp   =  1;    %% en segundos
-tMuestreo = 0.25;%% en segundos
-Nses    =  2 ;
-Fr=[3, 15];
-Ntest   =  1;
-limrand =  0.138;
-saving  =  0.01 ;
-
-%% CALCULO DE AROUSAL MAXIMO
-%plot([1:0.01:20],(12.8*(1-exp(-.25.* [1:0.01:20].^(2))))+(12.8*(1-exp(-.5.* [1:0.01:20]))),'.k')
 function rf = feel(pellets)
   rf=0;
   if (nargin~=0)
@@ -48,41 +24,25 @@ function rf = feel(pellets)
     error ("Faltan parametros");
   endif
 endfunction
+%% 
+%% 
 
-tau = 0.5 ;
-R1 = floor(feel(1)); %tiempo de refuezo para R
-R2 = floor(feel(2)); %tiempo de refuezo para T
-
-l1 = 20+R1; %20 = duraci�n entre trials
-%l2 = 48+R2; %48 = 20 entre trials + 8 de castigo + 20 entre trials
-
-%suma = 0; %suma es un valor necesaria para calcular max1 y min1
-%for i = 1:5
-%  suma = suma+alphaAP*(1-betaAP)^(i-1);
-%end
-%
-%max1 = 0; %maximum de stm1
-%min1 = 0; %minimum de stm1
-%for i = 1:5
-%  max1 = suma + min1*(1-betaAP)^5;
-%  min1 = max1*(1-betaAP)^20;
-%end
-%
-%max2 = 0; %maximum de stm2
-%for i = 1:8
-%  max2 = max2+alphaAP*(1-betaAP)^(i-1);
-%end
-%
-%S1 = (((max1-min1)*(0.72*l1))/2)+min1*l1; %calcul de la surfacia del triangulo m�s la de el rectangulo
-%                                          %0.75*l1 = 75% de l1 (base)    
-%S2 = (max2*(0.46*l2))/2; %calcul de la superficia del triangulo
-%
-%stmAP_1_medio = S1/l1;
-%stmAP_2_medio = S2/l2;
-%
-%A1max = (deltaAP/gamma)*stmAP_1_medio;
-%A2max = (deltaAP/gamma)*stmAP_2_medio;
-
+%% INICIALIZATION
+%%%%%% CONSTANTES DE SESIONES
+Ntrial  =  1 ;   %% un trial de 3600 segundos
+tTrial  =  3600; %% en segundos
+tResp   =  1;    %% en segundos
+tMuestreo = 0.25;%% en segundos
+Nses    =  5 ;
+Fr=[1,10,30,40,60];
+Ntest   =  1;
+limrand =  0.138;
+saving  =  0.01 ;
+%%%%%% CONSTANTES DE DECAIMIENTO
+alpha = 1*tMuestreo;
+beta  = 0.125*tMuestreo ;
+gamma = 0.0067*tMuestreo;%0.025 ; 
+delta = 1*tMuestreo;
 %%%%%% INICIALIZACION
 palanca = zeros(2,1);
 Rf_1=0;
@@ -100,6 +60,27 @@ terminal_sesion=zeros(Nses,1);
 nb_coop = zeros(Nses,Ntest);
 contadorP1=0;
 contadorP2=0;
+
+%% CALCULO DE AROUSAL MAXIMO
+%plot([1:0.01:20],(12.8*(1-exp(-.25.* [1:0.01:20].^(2))))+(12.8*(1-exp(-.5.* [1:0.01:20]))),'.k')
+tau = 0.5 ;
+R1 = floor(feel(1)); %tiempo de refuezo para R
+l1 = 20+R1; %20 = duraci�n entre trials
+suma = 0; %suma es un valor necesaria para calcular max1 y min1
+for i = 1:R1
+  suma = suma+alpha*(1-beta)^(i-1);
+end
+iter=10; %% numero de iteraciones para que converja el stm
+max1 = 0; %maximum de stm1
+min1 = 0; %minimum de stm1
+for i = 1:iter
+  max1 = suma + min1*(1-beta)^R1;
+  min1 = max1*(1-beta)^(30/tMuestreo); %% 30 = FR
+end
+S1 = (((max1-min1)*(0.72*l1))/2)+min1*l1; %calcul de la superficie del triangulo mas la de el rectangulo
+stm_1_medio = S1/l1;
+A1max = (delta/gamma)*stm_1_medio;
+
 %% INICIO DE LAS ITERATIONS
 for l = 1:Ntest  %% TESTES
   Num=0;
@@ -131,8 +112,8 @@ for l = 1:Ntest  %% TESTES
         
         i = i+1 ;
         J = j ;
-        %P1(i,k)=0.5*(1-exp(-(5*A1((j-1)+Num,l))/A1max))+0.5; %probabilidad en exponential
-        P=.8;
+        P(i,k)=0.5*(1-exp(-(5*A1((j-1)+Num,l))/A1max))+0.5; %probabilidad en exponential
+        %P=.99;
         %P2(i,k)=0.5*(1-exp(-(5*A2((j-1)+Num,l))/A2max))+0.5;
         
         a = rand ;
@@ -140,13 +121,13 @@ for l = 1:Ntest  %% TESTES
         if (A1((j-1)+Num,l)<=limrand)&&(A2((j-1)+Num,l)<=limrand)
           palanca(i)=randi(2);
         elseif (A1((j-1)+Num,l)>=limrand)&&(A2((j-1)+Num,l)<=limrand)
-          if a>=P
+          if a>=P(i,k)
             palanca(i)=2;
           else
             palanca(i)=1;
           end
         elseif (A1((j-1)+Num,l)<=limrand)&&(A2((j-1)+Num,l)>=limrand)
-          if a>=P
+          if a>=P(i,k)
             palanca(i)=1;
           else
             palanca(i)=2;
@@ -167,8 +148,8 @@ for l = 1:Ntest  %% TESTES
           %  Rf_1=0;
           %  Rf_2=0;%floor(10*(1-exp(-0.8* 2 )));
           %end
-          stm_1(j+Num,l)=(1-beta)*stm_1((j-1)+Num,l)+alpha*Rf_1;
-          stm_2(j+Num,l)=(1-beta)*stm_2((j-1)+Num,l)+alpha*Rf_2;
+          %stm_1(j+Num,l)=(1-beta)*stm_1((j-1)+Num,l)+alpha*Rf_1;
+          %stm_2(j+Num,l)=(1-beta)*stm_2((j-1)+Num,l)+alpha*Rf_2;
           contadorP1=0;
         end
       else
