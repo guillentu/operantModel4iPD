@@ -62,28 +62,25 @@ contadorP1=0;
 contadorP2=0;
 
 %% CALCULO DE AROUSAL MAXIMO
+%% Iteraciones de respuesta refuerzo para encotnrar el STM medio
+Nconfig=10; %% Tasa de respuesta de configuracion
 %plot([1:0.01:20],(12.8*(1-exp(-.25.* [1:0.01:20].^(2))))+(12.8*(1-exp(-.5.* [1:0.01:20]))),'.k')
-tau = 0.5 ;
 R1 = floor(feel(1)); %tiempo de refuezo para R
-l1 = 20+R1; %20 = duraci�n entre trials
+l1 = Nconfig/tMuestreo; % duracion entre trials
 suma = 0; %suma es un valor necesaria para calcular max1 y min1
-%for i = 1:R1
-%  suma = suma+alpha*(1-beta)^(i-1);
-%end
-RFconfig=30; Tasa de 
-suma = 
-for i = 1:R1
-  suma = suma+alpha*(1-beta)^(i-1);
-end
-iter=10; %% numero de iteraciones para que converja el stm
+suma = alpha*R1 %% Refuerzo cada N respuestas
+iter=100; %% numero de iteraciones para que converja el stm
 max1 = 0; %maximum de stm1
 min1 = 0; %minimum de stm1
-for i = 1:iter
-  max1 = suma + min1*(1-beta)^R1;
-  min1 = max1*(1-beta)^(30/tMuestreo); %% 30 = FR
+for i = 1:iter 
+  suma = (1-beta)^(Nconfig/tMuestreo)*suma;%% Instantes que decae el stm
+  min1=suma;
+  suma += alpha*R1; %Refuerzo
+  max1=suma;
 end
-S1 = (((max1-min1)*(0.72*l1))/2)+min1*l1; %calcul de la superficie del triangulo mas la de el rectangulo
-stm_1_medio = S1/l1;
+comp=.88;
+S1 = (((max1-min1)*(comp*l1))/2)+min1*comp*l1; %calcul de la superficie del triangulo mas la de el rectangulo
+stm_1_medio = S1/(l1);
 A1max = (delta/gamma)*stm_1_medio;
 
 %% INICIO DE LAS ITERATIONS
@@ -286,8 +283,17 @@ for i=1:Ntest
     %plot(sesion(j,i)*ones(1,max(max(A1(:,i)))),(1:max(max(A1(:,i)))),'--k');
     h=plot((sesion(j,i).*tMuestreo)*ones(1,max(max(A1(:,i)))),(1:max(max(A1(:,i)))),'--k');
     set(h, "linewidth", 2);
-  end
-end
+    if j==1
+      h=plot(0:sesion(j,i)/4,P(:,j)'*A1max,'.-m');
+    else
+      h=plot(sesion(j-1,i)/4:sesion(j,i)/4,P(:,j)'*A1max,'.-m');
+    endif
+  endfor
+  plot(0:sesion(Nses,i),A1max*ones(1,length(0:sesion(Nses,i))))
+  hold off;
+endfor
+
+%% Maximos exitos por tasa= 10-360 - 30-120 - 40-65 - 60-60 
 
 color = 'rgbmkmrgbk';
 figure
