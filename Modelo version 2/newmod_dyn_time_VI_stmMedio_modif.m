@@ -1,21 +1,23 @@
-%% Experimento con Variable-Interval - VI - Tasa Variable
-%% Existen multiples intancias de palanquelo (cada vez que realiza respuesta decide si realiza otro o no)
-%% Sesiones de 3600 segundos
-%% 3 sesiones por tasa de refuerzo (o quizas hasta que sature)
-%% 5 sesiones por Experimento.
-%% Cada sesion 
+%% Experimento con Variable-Interval - VI - intervalo Variable
+%% Existen multiples intancias de palanquelo (cada vez que realiza respuesta decide si realiza otra o no)
+%% Durante el intervalo se pesa la cantidad de palanqueos y no palanqueos respecto a la cantidad de instacias
+%% de respuesta. EL refuerzo impacta de forma proporcional a la tasa de respuestas.
+%% Un trial dura 3600 segundos.
+%% Una sesion 1 o 3 trial (seg´un la dinamica del animal)
+%% 5 sesiones por Experimento. Cada sesion es un intervalo diferente.
+%% 1 experimento
 %% Tiempo para realizar un respuesta 1 segundo
 %% 
 %% La probabilidad de eleccion se ajusta al nivel de maxima frecuencia de palanqueo
+%% 
 
 close all
 clc
 clear
 
 %% Matriz de pago 0 1 
-%% 1 - 
-%%%
-%%% 
+
+%%% Se ajusto la apreciacion de las cantidades de refuerzo 
 function rf = feel(pellets)
   rf=0;
   if (nargin~=0)
@@ -34,7 +36,7 @@ tTrial  =  3600; %% en segundos
 tResp   =  1;    %% en segundos
 tMuestreo = 0.25;%% en segundos
 Nses    =  5 ;
-Vi=[1,10,30,40,60]; %% tasa medias de palanquei
+Vi=[5,10,30,40,60]; %% valores medios de intervalos variables
 Ntest   =  1;
 limrand =  0.138;
 saving  =  0.01 ;
@@ -52,14 +54,14 @@ A2=zeros(1,Ntest);
 stm_1=zeros(2,Ntest);
 stm_2=zeros(2,Ntest);
 d=1;
-x_1=zeros(30,1);
-x_2=zeros(30,1);
+
 sesion = zeros(Nses,1);
 trialXsesion = zeros(Nses,Ntrial);
 terminal_sesion=zeros(Nses,1);
 nb_coop = zeros(Nses,Ntest);
 contadorP1=0;
 contadorP2=0;
+contadorI=0;
 
 %% CALCULO DE AROUSAL MAXIMO
 %% Iteraciones de respuesta refuerzo para encotnrar el STM medio
@@ -87,78 +89,106 @@ A1max = (delta/gamma)*stm_1_medio;
 for l = 1:Ntest  %% TESTES
   Num=0;
   for k = 1:Nses  %% SESIONES (cambia el N)
-    i=2;
+    i=0;
     %duracion = [1,tTrial*ones(1,Ntrial)];
     
     contador = 1;
-    palanca(1)=randi(2);
-    %% Agregar tasa de refuerzos  %%
-    tasa=Vr(k);
+    %palanca(1)=randi(2);
+    
+    %% Agregar intervalo de refuerzos  %%
+    intervalo=Vi(k);
     if k>1
       A1(Num+1,l)=saving*A1(Num,l);
       A2(Num+1,l)=saving*A2(Num,l);
       stm_1(Num+1,l)=0*stm_1(Num,l);
       stm_2(Num+1,l)=0*stm_2(Num,l); 
       %%% ELECCION DE LA PRIMERA PALANCA 
-      if A1(Num,1)>A2(Num,1)
-        palanca(2)=1;
-      else
-        palanca(2)=2;
-      end
+%      if A1(Num,1)>A2(Num,1)
+%        palanca(2)=1;
+%      else
+%        palanca(2)=2;
+%      end
     end       
-    
+    P1(1,k)=0.5;
+    P1(1,k)=0.5;
     for j=2:(Ntrial*tTrial/tMuestreo) %% Todos los trials juntos
       
       if contador == tResp/tMuestreo%duracion(i)
-        contador = 1;
-        
-        i = i+1 ;
+        contador = 0;
+        %i = i+1 ;
         J = j ;
-        P(i,k)=0.5*(1-exp(-(5*A1((j-1)+Num,l))/A1max))+0.5; %probabilidad en exponential
+        P1(j,k)=0.5*(1-exp(-(5*A1((j-1)+Num,l))/A1max))+0.5; %probabilidad en exponential
+        P2(j,k)=0.5*(1-exp(-(5*A2((j-1)+Num,l))/A1max))+0.5; %probabilidad en exponential
         %P=.99;
         %P2(i,k)=0.5*(1-exp(-(5*A2((j-1)+Num,l))/A2max))+0.5;
         
         a = rand ;
         %%% ELECCION DE LA PALANCA %%% Basicamente elige palanquear o no palanquear
         if (A1((j-1)+Num,l)<=limrand)&&(A2((j-1)+Num,l)<=limrand)
-          palanca(i)=randi(2);
+          palanca(j)=randi(2);
         elseif (A1((j-1)+Num,l)>=limrand)&&(A2((j-1)+Num,l)<=limrand)
-          if a>=P(i,k)
-            palanca(i)=2;
+          if a>=P1(j,k)
+            palanca(j)=2;
           else
-            palanca(i)=1;
+            palanca(j)=1;
           end
         elseif (A1((j-1)+Num,l)<=limrand)&&(A2((j-1)+Num,l)>=limrand)
-          if a>=P(i,k)
-            palanca(i)=1;
+          if a>=P2(i,k)
+            palanca(j)=1;
           else
-            palanca(i)=2;
+            palanca(j)=2;
+          end
+        elseif (A1((j-1)+Num,l)>A2((j-1)+Num,l))
+          if a>=P1(j,k)
+            palanca(j)=2;
+          else
+            palanca(j)=1;
+          end
+        else
+          if a>=P2(j,k)
+            palanca(j)=1;
+          else
+            palanca(j)=2;
           end
         end
-        %% Contadores para tasa de refuerzo
-        if palanca(i)==1
+        %% Contadores para intervalo de refuerzo
+        if palanca(j)==1
           contadorP1++;
         else
           contadorP2++;
         endif
         %%% REFUERZO %%%
-        if (contadorP1>=tasa)
-          %if (palanca(i)==1) %% palanquea
-          Rf_1=floor(feel(1));
-          Rf_2=0;
-          %elseif (palanca(i-1)==2) %% No palanquea
-          %  Rf_1=0;
-          %  Rf_2=0;%floor(10*(1-exp(-0.8* 2 )));
-          %end
-          %stm_1(j+Num,l)=(1-beta)*stm_1((j-1)+Num,l)+alpha*Rf_1;
-          %stm_2(j+Num,l)=(1-beta)*stm_2((j-1)+Num,l)+alpha*Rf_2;
-          contadorP1=0;
-          dispe=.5; %% dispercion del 50% del valor de la tasa
-          tasa=Vr(k)*(1 + dispe*(1-2*rand))
-          Vr(k)
+        if (contadorI >= intervalo)
+          if (contadorP1>=1)
+            %if (palanca(i)==1) %% palanquea
+            aux=contadorP1+contadorP2;
+            Rfz=floor(feel(1));
+            Rf_1=Rfz*contadorP1/aux;
+            Rf_2=Rfz*contadorP2/aux;
+            %elseif (palanca(i-1)==2) %% No palanquea
+            %  Rf_1=0;
+            %  Rf_2=0;%floor(10*(1-exp(-0.8* 2 )));
+            %end
+            %stm_1(j+Num,l)=(1-beta)*stm_1((j-1)+Num,l)+alpha*Rf_1;
+            %stm_2(j+Num,l)=(1-beta)*stm_2((j-1)+Num,l)+alpha*Rf_2;
+            contadorP1=0;
+            contadorP2=0;
+            contadorI =0;
+            dispe=.5; %% dispercion del 50% del valor de la intervalo
+            intervalo=Vi(k)*(1 + dispe*(1-2*rand))
+            Vi(k)
+          else
+            contadorP1=0;
+            contadorP2=0;
+            contadorI =0;
+            dispe=.5; %% dispercion del 50% del valor de la intervalo
+            intervalo=Vi(k)*(1 + dispe*(1-2*rand))
+            Vi(k)
+          endif
         end
       else
-        contador=contador +1;
+        contador++;
+        contadorI++;
         Rf_1=0;
         Rf_2=0;
       end
@@ -287,16 +317,16 @@ for i=1:Ntest
     h=plot((sesion(j,i).*tMuestreo)*ones(1,max(max(A1(:,i)))),(1:max(max(A1(:,i)))),'--k');
     set(h, "linewidth", 2);
     if j==1
-      h=plot(0:sesion(j,i)/4,P(:,j)'*A1max,'.-m');
+      h=plot(0:sesion(j,i)/4,P1(:,j)'*A1max,'.-m');
     else
-      h=plot(sesion(j-1,i)/4:sesion(j,i)/4,P(:,j)'*A1max,'.-m');
+      h=plot(sesion(j-1,i)/4:sesion(j,i)/4,P1(:,j)'*A1max,'.-m');
     endif
   endfor
   plot((0:sesion(Nses,i))/4,A1max*ones(1,length(0:sesion(Nses,i))))
   hold off;
 endfor
 
-%% Maximos exitos por tasa= 10-360 - 30-120 - 40-65 - 60-60 
+%% Maximos exitos por intervalo= 10-360 - 30-120 - 40-65 - 60-60 
 
 color = 'rgbmkmrgbk';
 figure

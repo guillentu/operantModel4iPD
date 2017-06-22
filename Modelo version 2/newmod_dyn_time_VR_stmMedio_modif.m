@@ -154,7 +154,7 @@ for l = 1:Ntest  %% TESTES
           %stm_2(j+Num,l)=(1-beta)*stm_2((j-1)+Num,l)+alpha*Rf_2;
           contadorP1=0;
           dispe=.5; %% dispercion del 50% del valor de la tasa
-          tasa=Vr(k)*(1 + dispe*(1-2*rand))
+          tasa=Vr(k)*(1 + dispe*(1-2*rand)); %% Asignacion de tasa  
           Vr(k)
         end
       else
