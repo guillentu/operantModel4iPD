@@ -23,57 +23,33 @@
 %hold off;
 
 
-%%%%%% CONSTANTES DE SESIONES
-Ntrial  =  1 ;   %% un trial de 3600 segundos
-tTrial  =  3600; %% en segundos
-tResp   =  1;    %% en segundos
-tMuestreo = 0.25;%% en segundos
-Nses    =  5 ;
-Fr=[1,10,30,40,60];
-Ntest   =  1;
-limrand =  0.138;
-saving  =  0.01 ;
-%%%%%% CONSTANTES DE DECAIMIENTO
-alpha = 1*tMuestreo;
-beta  = 0.125*tMuestreo ;
-gamma = 0.0067*tMuestreo;%0.025 ; 
-delta = 1*tMuestreo;
-%%%%%% INICIALIZACION
-palanca = zeros(2,1);
-Rf_1=0;
-Rf_2=0;
-A1=zeros(1,Ntest);
-A2=zeros(1,Ntest);
-stm_1=zeros(2,Ntest);
-stm_2=zeros(2,Ntest);
-d=1;
-x_1=zeros(30,1);
-x_2=zeros(30,1);
-sesion = zeros(Nses,1);
-trialXsesion = zeros(Nses,Ntrial);
-terminal_sesion=zeros(Nses,1);
-nb_coop = zeros(Nses,Ntest);
-contadorP1=0;
-contadorP2=0;
+%%               
+for i=1:Ntest
+  for j=1:Nses
+    figure
+    hold on
+    if j==1
+      abscisa=[1:sesion(j,i)]*tMuestreo;
+      abscisa2=[1:sesion(j,i)];
+      h=plot(0:sesion(j,i)/4,P(:,j)'*A1max,'.--m');
+    else
+      abscisa=[1:sesion(j,i)]*tMuestreo;
+      abscisa2=[sesion(j-1,i)-1:sesion(j,i)]
 
-%% CALCULO DE AROUSAL MAXIMO
-%% Iteraciones de respuesta refuerzo para encotnrar el STM medio
-Nconfig=30; %% Tasa de respuesta de configuracion
-%plot([1:0.01:20],(12.8*(1-exp(-.25.* [1:0.01:20].^(2))))+(12.8*(1-exp(-.5.* [1:0.01:20]))),'.k')
-R1 = floor(feel(1)); %tiempo de refuezo para R
-l1 = Nconfig/tMuestreo; % duracion entre trials
-iter=100; %% numero de iteraciones para que converja el stm
-max1 = 0; %maximum de stm1
-min1 = 0; %minimum de stm1
-suma = 0; %suma es un valor necesaria para calcular max1 y min1
-suma = alpha*R1 %% Refuerzo cada N respuestas
-for i = 1:iter 
-  suma = (1-beta)^(Nconfig/tMuestreo)*suma;%% Instantes que decae el stm
-  min1=suma;
-  suma += alpha*R1; %Refuerzo
-  max1=suma;
-end
-comp=.5;
-S1 = (((max1-min1)*(comp*l1))/2)+min1*comp*l1; %calcul de la superficie del triangulo mas la de el rectangulo
-stm_1_medio = S1/(l1);
-A1max = (delta/gamma)*stm_1_medio;
+      h=plot(sesion(j-1,i)/4:sesion(j,i)/4,P(:,j)'*A1max,'.--m');
+    endif
+    plot(abscisa,A1(abscisa2,i),'r',...
+         abscisa,A2(abscisa2,i),'b',...
+         abscisa,stm_1(abscisa2,i),'g',...
+         abscisa,stm_2(abscisa2,i),'m',...
+         abscisa,limrand*ones(1,length(abscisa)),'--b');
+         
+    legend("A1","A2","STM1","STM2","limrand");
+
+    h=plot(1:sesion(j,i)/4,P(1:length(abscisa)/4,j)'*A1max,'.--m');
+    h=plot(abscisa*ones(1,max(max(A1(:,i)))),(1:max(max(A1(:,i)))),'--k');
+    set(h, "linewidth", 2);
+    %plot(abscisa/4,A1max*ones(1,sesion(1,i)*tMuestreo))
+    hold off;
+  endfor
+endfor
