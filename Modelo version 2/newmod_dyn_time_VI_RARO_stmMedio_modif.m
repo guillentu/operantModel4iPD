@@ -1,6 +1,7 @@
 %% Experimento con Variable-Interval - VI - intervalo Variable
 %% Existen multiples intancias de palanquelo (cada vez que realiza respuesta decide si realiza otra o no)
-%% Luego que transcurre el intervalo, si el animal realiza una respuesta obtiene refuerzo.
+%% Durante el intervalo se pesa la cantidad de palanqueos y no palanqueos respecto a la cantidad de instacias
+%% de respuesta. EL refuerzo impacta de forma proporcional a la tasa de respuestas.
 %% Un trial dura 3600 segundos.
 %% Una sesion 1 o 3 trial (seg´un la dinamica del animal)
 %% 5 sesiones por Experimento. Cada sesion es un intervalo diferente.
@@ -58,8 +59,8 @@ sesion = zeros(Nses,1);
 trialXsesion = zeros(Nses,Ntrial);
 terminal_sesion=zeros(Nses,1);
 nb_coop = zeros(Nses,Ntest);
-%contadorP1=0;
-%contadorP2=0;
+contadorP1=0;
+contadorP2=0;
 contadorI=0;
 
 %% CALCULO DE AROUSAL MAXIMO
@@ -109,17 +110,17 @@ for l = 1:Ntest  %% TESTES
 %      end
     end       
     P1(i,k)=0.5;
-    %P2(i,k)=0.5;
+    P1(i,k)=0.5;
     for j=2:(Ntrial*tTrial/tMuestreo) %% Todos los trials juntos
       
       if contador == tResp/tMuestreo%duracion(i)
-        contador = 1;
+        contador = 0;
         i = i+1 ;
         J = j ;
-        if (i==3605)
-        aa=1;
-        endif
         P1(i,k)=0.5*(1-exp(-(5*A1((j-1)+Num,l))/A1max))+0.5; %probabilidad en exponential
+        P2(i,k)=0.5*(1-exp(-(5*A2((j-1)+Num,l))/A1max))+0.5; %probabilidad en exponential
+        %P=.99;
+        %P2(i,k)=0.5*(1-exp(-(5*A2((j-1)+Num,l))/A2max))+0.5;
         
         a = rand ;
         %%% ELECCION DE LA PALANCA %%% Basicamente elige palanquear o no palanquear
@@ -131,29 +132,61 @@ for l = 1:Ntest  %% TESTES
           else
             palanca(i)=1;
           end
+        elseif (A1((j-1)+Num,l)<=limrand)&&(A2((j-1)+Num,l)>=limrand)
+          if a>=P2(i,k)
+            palanca(i)=1;
+          else
+            palanca(i)=2;
+          end
         elseif (A1((j-1)+Num,l)>A2((j-1)+Num,l))
           if a>=P1(i,k)
             palanca(i)=2;
           else
             palanca(i)=1;
           end
+        else
+          if a>=P2(i,k)
+            palanca(i)=1;
+          else
+            palanca(i)=2;
+          end
         end
+        %% Contadores para intervalo de refuerzo
+        if palanca(i)==1
+          contadorP1++;
+        else
+          contadorP2++;
+        endif
         %%% REFUERZO %%%
         if (contadorI >= intervalo/tMuestreo)
-          if (palanca(i)==1)
+          if (contadorP1>=1)
+            %if (palanca(i)==1) %% palanquea
+            aux=contadorP1+contadorP2;
             Rfz=floor(feel(1));
-            Rf_1 = Rfz;
-            Rf_2 = 0;
+            Rf_1=Rfz*contadorP1/aux;
+            Rf_2=Rfz*contadorP2/aux;
+            %elseif (palanca(i-1)==2) %% No palanquea
+            %  Rf_1=0;
+            %  Rf_2=0;%floor(10*(1-exp(-0.8* 2 )));
+            %end
+            %stm_1(j+Num,l)=(1-beta)*stm_1((j-1)+Num,l)+alpha*Rf_1;
+            %stm_2(j+Num,l)=(1-beta)*stm_2((j-1)+Num,l)+alpha*Rf_2;
+            contadorP1=0;
+            contadorP2=0;
             contadorI =0;
-            dispe =.5; %% dispercion del 50% del valor de la intervalo
-            intervalo = Vi(k)*(1 + dispe*(1-2*rand));
+            dispe=.5; %% dispercion del 50% del valor de la intervalo
+            intervalo=Vi(k)*(1 + dispe*(1-2*rand))
+            Vi(k)
           else
-          contador++;
-          contadorI++;
-          Rf_1=0;
-          Rf_2=0;
+            contadorP1=0;
+            contadorP2=0;
+            contadorI =0;
+            dispe=.5; %% dispercion del 50% del valor de la intervalo
+            intervalo=Vi(k)*(1 + dispe*(1-2*rand))
+            Vi(k)
           endif
-        endif
+        end
+        
       else
         contador++;
         contadorI++;
@@ -164,6 +197,10 @@ for l = 1:Ntest  %% TESTES
       stm_2(j+Num,l)=(1-beta)*stm_2((j-1)+Num,l)+alpha*Rf_2;
       A1(j+Num,l)=(1-gamma)*A1((j-1)+Num,l)+delta*stm_1(j+Num,l);
       A2(j+Num,l)=(1-gamma)*A2((j-1)+Num,l)+delta*stm_2(j+Num,l);
+      
+%      if floor(j/tTrial)==(j/tTrial)
+%        trialXsesion()
+%      end
     end
     
     
