@@ -273,6 +273,9 @@ end
 %cuanto_alcanzan_al_maxima=sum(maxima)/Ntest * 100;
 %porcentaje_coop_experimento;
 resp_por_segundos=nb_resp/length(palanca); %numero de respuestas dividido por el numero de respestas maximal posible
+for k=1:Nses
+  rf_por_segundos=floor(nb_resp(k)/
+
 
 
 for i=1:Ntest
