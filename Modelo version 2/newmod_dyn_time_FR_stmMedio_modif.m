@@ -273,8 +273,12 @@ end
 %cuanto_alcanzan_al_maxima=sum(maxima)/Ntest * 100;
 %porcentaje_coop_experimento;
 resp_por_segundos=nb_resp/length(palanca); %numero de respuestas dividido por el numero de respestas maximal posible
-for k=1:Nses
-  rf_por_segundos=floor(nb_resp(k)/
+
+for i=1:Ntest
+  for k=1:Nses
+    refuerzo(k,i)=floor(nb_resp(k,i)/Fr(k));
+  end
+end
 
 
 
@@ -313,8 +317,8 @@ hold off
 figure
 hold on
 for i=1:Ntest
-  plot(Fr,resp_por_segundos(:,i),'Color',color(i));
-  title('Respuestas por segundos');
+  plot(refuerzo(:,i),resp_por_segundos(:,i),'Color',color(i));
+  title('Respuestas y refuerzo');
   xlabel('Tasa fija');
   ylabel('Respuestas/segundos');
 end
