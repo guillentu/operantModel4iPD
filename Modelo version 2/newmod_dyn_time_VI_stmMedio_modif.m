@@ -89,7 +89,6 @@ A1max = (delta/gamma)*stm_1_medio;
 for l = 1:Ntest  %% TESTES
   Num=0;
   for k = 1:Nses  %% SESIONES (cambia el N)
-    i=0;
     %duracion = [1,tTrial*ones(1,Ntrial)];
     
     contador = 1;
@@ -109,71 +108,44 @@ for l = 1:Ntest  %% TESTES
 %        palanca(2)=2;
 %      end
     end       
-    P1(1,k)=0.5;
-    P1(1,k)=0.5;
+    P1(i,k)=0.5;
+    %P2(i,k)=0.5;
     for j=2:(Ntrial*tTrial/tMuestreo) %% Todos los trials juntos
       
       if contador == tResp/tMuestreo%duracion(i)
-        contador = 0;
-        %i = i+1 ;
+        contador = 1;
+        i = i+1 ;
         J = j ;
-        P1(j,k)=0.5*(1-exp(-(5*A1((j-1)+Num,l))/A1max))+0.5; %probabilidad en exponential
-        P2(j,k)=0.5*(1-exp(-(5*A2((j-1)+Num,l))/A1max))+0.5; %probabilidad en exponential
-        %P=.99;
-        %P2(i,k)=0.5*(1-exp(-(5*A2((j-1)+Num,l))/A2max))+0.5;
+        if (i==3605)
+        aa=1;
+        endif
+        P1(i,k)=0.5*(1-exp(-(5*A1((j-1)+Num,l))/A1max))+0.5; %probabilidad en exponential
         
         a = rand ;
         %%% ELECCION DE LA PALANCA %%% Basicamente elige palanquear o no palanquear
         if (A1((j-1)+Num,l)<=limrand)&&(A2((j-1)+Num,l)<=limrand)
-          palanca(j)=randi(2);
+          palanca(i)=randi(2);
         elseif (A1((j-1)+Num,l)>=limrand)&&(A2((j-1)+Num,l)<=limrand)
-          if a>=P1(j,k)
-            palanca(j)=2;
+          if a>=P1(i,k)
+            palanca(i)=2;
           else
-            palanca(j)=1;
-          end
-        elseif (A1((j-1)+Num,l)<=limrand)&&(A2((j-1)+Num,l)>=limrand)
-          if a>=P2(i,k)
-            palanca(j)=1;
-          else
-            palanca(j)=2;
+            palanca(i)=1;
           end
         elseif (A1((j-1)+Num,l)>A2((j-1)+Num,l))
-          if a>=P1(j,k)
-            palanca(j)=2;
+          if a>=P1(i,k)
+            palanca(i)=2;
           else
-            palanca(j)=1;
-          end
-        else
-          if a>=P2(j,k)
-            palanca(j)=1;
-          else
-            palanca(j)=2;
+            palanca(i)=1;
           end
         end
-        %% Contadores para intervalo de refuerzo
-        if palanca(j)==1
-          contadorP1++;
-        else
-          contadorP2++;
-        endif
         %%% REFUERZO %%%
-        if (contadorI >= intervalo)
-          if (contadorP1>=1)
-            %if (palanca(i)==1) %% palanquea
-            aux=contadorP1+contadorP2;
+        if (contadorI >= intervalo/tMuestreo)
+          if (palanca(i)==1)
             Rfz=floor(feel(1));
-            Rf_1=Rfz*contadorP1/aux;
-            Rf_2=Rfz*contadorP2/aux;
-            %elseif (palanca(i-1)==2) %% No palanquea
-            %  Rf_1=0;
-            %  Rf_2=0;%floor(10*(1-exp(-0.8* 2 )));
-            %end
-            %stm_1(j+Num,l)=(1-beta)*stm_1((j-1)+Num,l)+alpha*Rf_1;
-            %stm_2(j+Num,l)=(1-beta)*stm_2((j-1)+Num,l)+alpha*Rf_2;
-            contadorP1=0;
-            contadorP2=0;
+            Rf_1 = Rfz;
+            Rf_2 = 0;
             contadorI =0;
+<<<<<<< HEAD
             dispe=.5; %% dispercion del 50% del valor de la intervalo
             intervalo=Vi(k)*(1 + dispe*(1-2*rand));
             Vi(k);
@@ -184,8 +156,17 @@ for l = 1:Ntest  %% TESTES
             dispe=.5; %% dispercion del 50% del valor de la intervalo
             intervalo=Vi(k)*(1 + dispe*(1-2*rand));
             Vi(k);
+=======
+            dispe =.5; %% dispercion del 50% del valor de la intervalo
+            intervalo = Vi(k)*(1 + dispe*(1-2*rand));
+          else
+          contador++;
+          contadorI++;
+          Rf_1=0;
+          Rf_2=0;
+>>>>>>> d05ea7c5d27f66c7e009a5f47b134605e1923a8e
           endif
-        end
+        endif
       else
         contador++;
         contadorI++;
@@ -196,10 +177,6 @@ for l = 1:Ntest  %% TESTES
       stm_2(j+Num,l)=(1-beta)*stm_2((j-1)+Num,l)+alpha*Rf_2;
       A1(j+Num,l)=(1-gamma)*A1((j-1)+Num,l)+delta*stm_1(j+Num,l);
       A2(j+Num,l)=(1-gamma)*A2((j-1)+Num,l)+delta*stm_2(j+Num,l);
-      
-%      if floor(j/tTrial)==(j/tTrial)
-%        trialXsesion()
-%      end
     end
     
     
