@@ -92,7 +92,8 @@ for l = 1:Ntest  %% TESTES
     i=1;
     %duracion = [1,tTrial*ones(1,Ntrial)];
     
-    contador = 1;
+    contador = 0;
+    contadorI =0;
     %palanca(1)=randi(2);
     
     %% Agregar intervalo de refuerzos  %%
@@ -114,7 +115,7 @@ for l = 1:Ntest  %% TESTES
     for j=2:(Ntrial*tTrial/tMuestreo) %% Todos los trials juntos
       
       if contador == tResp/tMuestreo%duracion(i)
-        contador = 1;
+        contador = 0;
         i = i+1 ;
         J = j ;
         if (i==3605)
