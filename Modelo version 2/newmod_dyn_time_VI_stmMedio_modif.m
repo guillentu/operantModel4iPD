@@ -1,7 +1,6 @@
 %% Experimento con Variable-Interval - VI - intervalo Variable
 %% Existen multiples intancias de palanquelo (cada vez que realiza respuesta decide si realiza otra o no)
-%% Durante el intervalo se pesa la cantidad de palanqueos y no palanqueos respecto a la cantidad de instacias
-%% de respuesta. EL refuerzo impacta de forma proporcional a la tasa de respuestas.
+%% Luego que transcurre el intervalo, si el animal realiza una respuesta obtiene refuerzo.
 %% Un trial dura 3600 segundos.
 %% Una sesion 1 o 3 trial (seg´un la dinamica del animal)
 %% 5 sesiones por Experimento. Cada sesion es un intervalo diferente.
@@ -59,8 +58,8 @@ sesion = zeros(Nses,1);
 trialXsesion = zeros(Nses,Ntrial);
 terminal_sesion=zeros(Nses,1);
 nb_resp = zeros(Nses,Ntest);
-contadorP1=0;
-contadorP2=0;
+%contadorP1=0;
+%contadorP2=0;
 contadorI=0;
 
 %% CALCULO DE AROUSAL MAXIMO
@@ -89,6 +88,7 @@ A1max = (delta/gamma)*stm_1_medio;
 for l = 1:Ntest  %% TESTES
   Num=0;
   for k = 1:Nses  %% SESIONES (cambia el N)
+    i=1;
     %duracion = [1,tTrial*ones(1,Ntrial)];
     
     contador = 1;
@@ -144,28 +144,20 @@ for l = 1:Ntest  %% TESTES
             Rfz=floor(feel(1));
             Rf_1 = Rfz;
             Rf_2 = 0;
-            contadorI =0;
-<<<<<<< HEAD
-            dispe=.5; %% dispercion del 50% del valor de la intervalo
-            intervalo=Vi(k)*(1 + dispe*(1-2*rand));
-            Vi(k);
-          else
-            contadorP1=0;
-            contadorP2=0;
-            contadorI =0;
-            dispe=.5; %% dispercion del 50% del valor de la intervalo
-            intervalo=Vi(k)*(1 + dispe*(1-2*rand));
-            Vi(k);
-=======
+            contadorI =1;
             dispe =.5; %% dispercion del 50% del valor de la intervalo
             intervalo = Vi(k)*(1 + dispe*(1-2*rand));
           else
-          contador++;
+          %contador++;
           contadorI++;
           Rf_1=0;
           Rf_2=0;
->>>>>>> d05ea7c5d27f66c7e009a5f47b134605e1923a8e
           endif
+        else
+        %contador++;
+        contadorI++;
+        Rf_1=0;
+        Rf_2=0;
         endif
       else
         contador++;
@@ -294,9 +286,9 @@ for i=1:Ntest
     h=plot((sesion(j,i).*tMuestreo)*ones(1,max(max(A1(:,i)))),(1:max(max(A1(:,i)))),'--k');
     set(h, "linewidth", 2);
     if j==1
-      h=plot(1:sesion(j,i),P1(:,j)'*A1max,'.-m');
+      h=plot(1:sesion(j,i)/4,P1(:,j)'*A1max,'.-m');
     else
-      h=plot(sesion(j-1,i)+1:sesion(j,i),P1(:,j)'*A1max,'.-m');
+      h=plot(sesion(j-1,i)/4+1:sesion(j,i)/4,P1(:,j)'*A1max,'.-m');
     endif
   endfor
   plot((0:sesion(Nses,i))/4,A1max*ones(1,length(0:sesion(Nses,i))))
