@@ -58,6 +58,7 @@ sesion = zeros(Nses,1);
 trialXsesion = zeros(Nses,Ntrial);
 terminal_sesion=zeros(Nses,1);
 nb_resp = zeros(Nses,Ntest);
+refuerzo = zeros(Nses,Ntest);
 %contadorP1=0;
 %contadorP2=0;
 contadorI=0;
@@ -147,6 +148,7 @@ for l = 1:Ntest  %% TESTES
             contadorI =1;
             dispe =.5; %% dispercion del 50% del valor de la intervalo
             intervalo = Vi(k)*(1 + dispe*(1-2*rand));
+            refuerzo(k,l)++;
           else
           %contador++;
           contadorI++;
@@ -275,6 +277,10 @@ end
 %porcentaje_coop_experimento;
 %porcentaje_coop_sesion=floor(nb_coop/Ntrial*100);
 
+resp_por_segundos=nb_resp/length(palanca); %numero de respuestas dividido por el numero de respestas maximal posible
+
+
+
 
 for i=1:Ntest
   figure
@@ -301,22 +307,21 @@ color = 'rgbmkmrgbk';
 figure
 hold on
 for i=1:Ntest
-  plot(1:Nses,porcentaje_coop_sesion(:,i),'Color',color(i));
-  title('Porcentaje de Cooperacion');
-  xlabel('Numero de sesion');
-  ylabel('Porcentaje');
+  plot(Vi,resp_por_segundos(:,i),'Color',color(i));
+  title('Respuestas por segundos');
+  xlabel('Interval');
+  ylabel('Respuestas/segundos');
 end
 hold off
 
 
-color = 'rgbmkmrgbk';
 figure
 hold on
 for i=1:Ntest
-  plot(1:Nses,porcentaje_coop_sesion(:,i),'Color',color(i));
-  title('Porcentaje de Cooperacion');
-  xlabel('Numero de sesion');
-  ylabel('Porcentaje');
+  plot(refuerzo(:,i),resp_por_segundos(:,i),'Color',color(i));
+  title('Respuestas y refuerzo');
+  xlabel('Refuerzo');
+  ylabel('Respuestas/segundos');
 end
 hold off
 

@@ -319,7 +319,7 @@ hold on
 for i=1:Ntest
   plot(refuerzo(:,i),resp_por_segundos(:,i),'Color',color(i));
   title('Respuestas y refuerzo');
-  xlabel('Tasa fija');
+  xlabel('Refuezo');
   ylabel('Respuestas/segundos');
 end
 hold off
