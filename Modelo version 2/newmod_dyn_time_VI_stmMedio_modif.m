@@ -91,8 +91,8 @@ for l = 1:Ntest  %% TESTES
     i=1;
     %duracion = [1,tTrial*ones(1,Ntrial)];
     
-    contador = 0;
-    contadorI =0;
+    contador = 1;
+    contadorI =1;
     %palanca(1)=randi(2);
     
     %% Agregar intervalo de refuerzos  %%
@@ -114,7 +114,7 @@ for l = 1:Ntest  %% TESTES
     for j=2:(Ntrial*tTrial/tMuestreo) %% Todos los trials juntos
       
       if contador == tResp/tMuestreo%duracion(i)
-        contador = 0;
+        contador = 1;
         i = i+1 ;
         J = j ;
         if (i==3605)
@@ -296,30 +296,31 @@ for i=1:Ntest
   hold off;
 endfor
 
+
 %% Maximos exitos por intervalo= 10-360 - 30-120 - 40-65 - 60-60 
 
-color = 'rgbmkmrgbk';
-figure
-hold on
-for i=1:Ntest
-  plot(1:Nses,porcentaje_coop_sesion(:,i),'Color',color(i));
-  title('Porcentaje de Cooperacion');
-  xlabel('Numero de sesion');
-  ylabel('Porcentaje');
-end
-hold off
+%color = 'rgbmkmrgbk';
+%figure
+%hold on
+%for i=1:Ntest
+%  plot(1:Nses,porcentaje_coop_sesion(:,i),'Color',color(i));
+%  title('Porcentaje de Cooperacion');
+%  xlabel('Numero de sesion');
+%  ylabel('Porcentaje');
+%end
+%hold off
 
 
-color = 'rgbmkmrgbk';
-figure
-hold on
-for i=1:Ntest
-  plot(1:Nses,porcentaje_coop_sesion(:,i),'Color',color(i));
-  title('Porcentaje de Cooperacion');
-  xlabel('Numero de sesion');
-  ylabel('Porcentaje');
-end
-hold off
+%color = 'rgbmkmrgbk';
+%figure
+%hold on
+%for i=1:Ntest
+%  plot(1:Nses,porcentaje_coop_sesion(:,i),'Color',color(i));
+%  title('Porcentaje de Cooperacion');
+%  xlabel('Numero de sesion');
+%  ylabel('Porcentaje');
+%end
+%hold off
 
 %%% probl�me de temps, pas le temps de d�croitre du coup red�marre plus
 %%% haut CQFD
