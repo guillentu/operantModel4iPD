@@ -10,8 +10,8 @@
 %% La probabilidad de eleccion se ajusta al nivel de maxima frecuencia de palanqueo
 %% 
 
-%close all
-%clc
+close all
+clc
 clear
 
 %% Matriz de pago 0 1 
@@ -148,7 +148,7 @@ for l = 1:Ntest  %% TESTES
             Rf_2 = 0;
             contadorI =1;
             dispe =.5; %% dispercion del 50% del valor de la intervalo
-            intervalo = Vi(k)*(1 + dispe*(1-2*rand));
+            %intervalo = Vi(k)*(1 + dispe*(1-2*rand));
             refuerzo(k,l)++;
           else
           %contador++;
