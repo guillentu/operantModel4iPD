@@ -281,25 +281,25 @@ end
 resp_por_segundos=nb_resp/length(palanca); %numero de respuestas dividido por el numero de respestas maximal posible
 
 
-
-
 for i=1:Ntest
-  figure
-  hold on
-  plot((1:Sizemat)*tMuestreo,A1(:,i),'r',(1:Sizemat)*tMuestreo,A2(:,i),'b',(1:Sizemat)*tMuestreo,stm_1(:,i),'g',(1:Sizemat)*tMuestreo,stm_2(:,i),'m',(1:Sizemat)*tMuestreo,limrand*ones(1,length([1:Sizemat])),'--b')
-  legend("A1","A2","STM1","STM2","limrand");
   for j=1:Nses
+    figure
+    hold on
     %plot(sesion(j,i)*ones(1,max(max(A1(:,i)))),(1:max(max(A1(:,i)))),'--k');
-    h=plot((sesion(j,i).*tMuestreo)*ones(1,max(max(A1(:,i)))),(1:max(max(A1(:,i)))),'--k');
-    set(h, "linewidth", 2);
+    %h=plot((sesion(j,i).*tMuestreo)*ones(1,max(max(A1(:,i)))),(1:max(max(A1(:,i)))),'--k');
+    %set(h, "linewidth", 2);
     if j==1
-      h=plot(1:sesion(j,i)/4,P1(:,j)'*A1max,'.-m');
+      plot(1:Ntrial*tTrial/tMuestreo,A1(1:sesion(j,i),i),'r',1:Ntrial*tTrial/tMuestreo,A2(1:sesion(j,i),i),'b',1:Ntrial*tTrial/tMuestreo,stm_1(1:sesion(j,i),i),'g',1:Ntrial*tTrial/tMuestreo,stm_2(1:sesion(j,i),i),'m',1:Ntrial*tTrial/tMuestreo,limrand*ones(1,Ntrial*tTrial/tMuestreo),'--b')
+      plot((1:(Ntrial*tTrial))/tMuestreo,P1(:,j)'*A1max,'.-m');
+      legend("A1","A2","STM1","STM2","limrand","probabilidad");
     else
-      h=plot(sesion(j-1,i)/4+1:sesion(j,i)/4,P1(:,j)'*A1max,'.-m');
+      plot(1:Ntrial*tTrial/tMuestreo,A1(sesion(j-1,i)+1:sesion(j,i),i),'r',1:Ntrial*tTrial/tMuestreo,A2(sesion(j-1,i)+1:sesion(j,i),i),'b',1:Ntrial*tTrial/tMuestreo,stm_1(sesion(j-1,i)+1:sesion(j,i),i),'g',1:Ntrial*tTrial/tMuestreo,stm_2(sesion(j-1,i)+1:sesion(j,i),i),'m',1:Ntrial*tTrial/tMuestreo,limrand*ones(1,Ntrial*tTrial/tMuestreo),'--b')
+      plot((1:(Ntrial*tTrial))/tMuestreo,P1(:,j)'*A1max,'.-m');
+      legend("A1","A2","STM1","STM2","limrand","probabilidad");
     endif
+    plot(1:Ntrial*tTrial/tMuestreo,A1max*ones(1,Ntrial*tTrial/tMuestreo));
+    hold off
   endfor
-  plot((0:sesion(Nses,i))/4,A1max*ones(1,length(0:sesion(Nses,i))))
-  hold off;
 endfor
 
 
@@ -311,9 +311,12 @@ hold on
 for i=1:Ntest
   plot(Vi,resp_por_segundos(:,i),'Color',color(i));
   title('Respuestas por segundos');
-  xlabel('Interval');
+  xlabel('Intervalos');
   ylabel('Respuestas/segundos');
-end
+  for j=1:Nses
+    plot(Vi(j)*ones(1,floor(resp_por_segundos(j,i)*100)+1),(0:floor(resp_por_segundos(j,i)*100))/100,'k');
+  end
+  end
 hold off
 
 
@@ -322,8 +325,12 @@ hold on
 for i=1:Ntest
   plot(refuerzo(:,i),resp_por_segundos(:,i),'Color',color(i));
   title('Respuestas y refuerzo');
-  xlabel('Refuerzo');
+  xlabel('Refuerzo/horas');
   ylabel('Respuestas/segundos');
+  for j=1:Nses
+    plot(refuerzo(j)*ones(1,floor(resp_por_segundos(j,i)*100)+1),(0:floor(resp_por_segundos(j,i)*100))/100,'k');
+    text(refuerzo(j),-.05,"N = Fr(j)");
+  end
 end
 hold off
 
