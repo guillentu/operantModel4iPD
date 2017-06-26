@@ -1,7 +1,7 @@
-%% Experimento con Variable-Interval - VI - intervalo Variable
+%% Experimento con Variable-Ratio - VR - Tasa Variable
 %% Existen multiples intancias de palanquelo (cada vez que realiza respuesta decide si realiza otra o no)
-%% Durante el intervalo se pesa la cantidad de palanqueos y no palanqueos respecto a la cantidad de instacias
-%% de respuesta. EL refuerzo impacta de forma proporcional a la tasa de respuestas.
+%% Durante la tasa se contabilizan los palanqueos y no palanqueos y el refuerzo impacta de forma 
+%% proporcional a la tasa de respuestas.
 %% Un trial dura 3600 segundos.
 %% Una sesion 1 o 3 trial (seg´un la dinamica del animal)
 %% 5 sesiones por Experimento. Cada sesion es un intervalo diferente.
@@ -36,13 +36,13 @@ tTrial  =  3600; %% en segundos
 tResp   =  1;    %% en segundos
 tMuestreo = 0.25;%% en segundos
 Nses    =  5 ;
-Vi=[5,10,30,40,60]; %% valores medios de intervalos variables
+Vr=[1,10,30,40,60]; %% valores medios de intervalos variables
 Ntest   =  1;
 limrand =  0.138;
 saving  =  0.01 ;
 %%%%%% CONSTANTES DE DECAIMIENTO
 alpha = 1*tMuestreo;
-beta  = 0.125*tMuestreo ;
+beta  = 0.13*0.31*tMuestreo;%0.125*tMuestreo ;
 gamma = 0.0067*tMuestreo;%0.025 ; 
 delta = 1*tMuestreo;
 %%%%%% INICIALIZACION
@@ -95,8 +95,8 @@ for l = 1:Ntest  %% TESTES
     contador = 1;
     %palanca(1)=randi(2);
     
-    %% Agregar intervalo de refuerzos  %%
-    intervalo=Vi(k);
+    %% Agregar tasa de refuerzos  %%
+    tasa=Vr(k);
     if k>1
       A1(Num+1,l)=saving*A1(Num,l);
       A2(Num+1,l)=saving*A2(Num,l);
@@ -114,7 +114,7 @@ for l = 1:Ntest  %% TESTES
     for j=2:(Ntrial*tTrial/tMuestreo) %% Todos los trials juntos
       
       if contador == tResp/tMuestreo%duracion(i)
-        contador = 0;
+        contador = 1;
         i = i+1 ;
         J = j ;
         P1(i,k)=0.5*(1-exp(-(5*A1((j-1)+Num,l))/A1max))+0.5; %probabilidad en exponential
@@ -158,34 +158,24 @@ for l = 1:Ntest  %% TESTES
           contadorP2++;
         endif
         %%% REFUERZO %%%
-        if (contadorI >= intervalo/tMuestreo)
-          if (contadorP1>=1)
-            %if (palanca(i)==1) %% palanquea
-            aux=contadorP1+contadorP2;
-            Rfz=floor(feel(1));
-            Rf_1=Rfz*contadorP1/aux;
-            Rf_2=Rfz*contadorP2/aux;
-            %elseif (palanca(i-1)==2) %% No palanquea
-            %  Rf_1=0;
-            %  Rf_2=0;%floor(10*(1-exp(-0.8* 2 )));
-            %end
-            %stm_1(j+Num,l)=(1-beta)*stm_1((j-1)+Num,l)+alpha*Rf_1;
-            %stm_2(j+Num,l)=(1-beta)*stm_2((j-1)+Num,l)+alpha*Rf_2;
-            contadorP1=0;
-            contadorP2=0;
-            contadorI =0;
-            dispe=.5; %% dispercion del 50% del valor de la intervalo
-            intervalo=Vi(k)*(1 + dispe*(1-2*rand))
-            Vi(k)
-          else
-            contadorP1=0;
-            contadorP2=0;
-            contadorI =0;
-            %dispe=.5; %% dispercion del 50% del valor de la intervalo
-            %intervalo=Vi(k)*(1 + dispe*(1-2*rand))
-            Vi(k)
-          endif
-        end
+        if (contadorP1>=tasa)
+          %if (palanca(i)==1) %% palanquea
+          aux=contadorP1+contadorP2;
+          Rfz=floor(feel(1));
+          Rf_1=Rfz*contadorP1/aux;
+          Rf_2=Rfz*contadorP2/aux;
+          %elseif (palanca(i-1)==2) %% No palanquea
+          %  Rf_1=0;
+          %  Rf_2=0;%floor(10*(1-exp(-0.8* 2 )));
+          %end
+          %stm_1(j+Num,l)=(1-beta)*stm_1((j-1)+Num,l)+alpha*Rf_1;
+          %stm_2(j+Num,l)=(1-beta)*stm_2((j-1)+Num,l)+alpha*Rf_2;
+          contadorP1=0;
+          contadorP2=0;
+          contadorI =0;
+          dispe=.5; %% dispercion del 50% del valor de la intervalo
+          tasa=Vr(k)*(1 + dispe*(1-2*rand));
+        endif
         
       else
         contador++;
@@ -318,12 +308,12 @@ for i=1:Ntest
     h=plot((sesion(j,i).*tMuestreo)*ones(1,max(max(A1(:,i)))),(1:max(max(A1(:,i)))),'--k');
     set(h, "linewidth", 2);
     if j==1
-      h=plot(0:sesion(j,i)/4,P1(:,j)'*A1max,'.-m');
+      h=plot(1:sesion(j,i)/4,P1(:,j)'*A1max,'.-m');
     else
-      h=plot(sesion(j-1,i)/4:sesion(j,i)/4,P1(:,j)'*A1max,'.-m');
+      h=plot((sesion(j-1,i)/4+1):sesion(j,i)/4,P1(:,j)'*A1max,'.-m');
     endif
   endfor
-  plot((0:sesion(Nses,i))/4,A1max*ones(1,length(0:sesion(Nses,i))))
+  plot(1:sesion(Nses,i)/4,A1max*ones(1,length(1:sesion(Nses,i)/4)))
   hold off;
 endfor
 
