@@ -58,7 +58,7 @@ d=1;
 sesion = zeros(Nses,1);
 trialXsesion = zeros(Nses,Ntrial);
 terminal_sesion=zeros(Nses,1);
-nb_coop = zeros(Nses,Ntest);
+nb_resp = zeros(Nses,Ntest);
 contadorP1=0;
 contadorP2=0;
 contadorI=0;
@@ -208,10 +208,10 @@ for l = 1:Ntest  %% TESTES
     Num = j+Num;
     Sizemat = length(A1);
     
-    for j = 1:Ntrial
+    for j = 1:length(palanca)
       if palanca(j)==1
         %nb_coop(k-1,l)= nb_coop(k-1,l)+1;
-        nb_coop(k,l)= nb_coop(k,l)+1;
+        nb_resp(k,l)= nb_resp(k,l)+1;
       end
     end
   end
@@ -247,37 +247,73 @@ end
 
 
 
+resp_por_segundos=nb_resp/length(palanca); %numero de respuestas dividido por el numero de respestas maximal posible
 
 for i=1:Ntest
-  figure
-  hold on
-  plot((1:Sizemat)*tMuestreo,A1(:,i),'r',(1:Sizemat)*tMuestreo,A2(:,i),'b',(1:Sizemat)*tMuestreo,stm_1(:,i),'g',(1:Sizemat)*tMuestreo,stm_2(:,i),'m',(1:Sizemat)*tMuestreo,limrand*ones(1,length([1:Sizemat])),'--b')
-  legend("A1","A2","STM1","STM2","limrand");
+  for k=1:Nses
+    refuerzo(k,i)=floor(nb_resp(k,i)/Fr(k));
+  end
+end
+
+
+for i=1:Ntest
   for j=1:Nses
+    figure
+    hold on
     %plot(sesion(j,i)*ones(1,max(max(A1(:,i)))),(1:max(max(A1(:,i)))),'--k');
-    h=plot((sesion(j,i).*tMuestreo)*ones(1,max(max(A1(:,i)))),(1:max(max(A1(:,i)))),'--k');
-    set(h, "linewidth", 2);
+    %h=plot((sesion(j,i).*tMuestreo)*ones(1,max(max(A1(:,i)))),(1:max(max(A1(:,i)))),'--k');
+    %set(h, "linewidth", 2);
     if j==1
-      h=plot(1:sesion(j,i)/4,P1(:,j)'*A1max,'.-m');
+      plot(1:Ntrial*tTrial/tMuestreo,A1(1:sesion(j,i),i),'r',1:Ntrial*tTrial/tMuestreo,A2(1:sesion(j,i),i),'b',1:Ntrial*tTrial/tMuestreo,stm_1(1:sesion(j,i),i),'g',1:Ntrial*tTrial/tMuestreo,stm_2(1:sesion(j,i),i),'m',1:Ntrial*tTrial/tMuestreo,limrand*ones(1,Ntrial*tTrial/tMuestreo),'--b');
+      plot((1:(Ntrial*tTrial))/tMuestreo,P1(:,j)'*A1max,'.-m');
+      legend("A1","A2","STM1","STM2","limrand","probabilidad");
     else
-      h=plot((sesion(j-1,i)/4+1):sesion(j,i)/4,P1(:,j)'*A1max,'.-m');
+      plot(1:Ntrial*tTrial/tMuestreo,A1(sesion(j-1,i)+1:sesion(j,i),i),'r',1:Ntrial*tTrial/tMuestreo,A2(sesion(j-1,i)+1:sesion(j,i),i),'b',1:Ntrial*tTrial/tMuestreo,stm_1(sesion(j-1,i)+1:sesion(j,i),i),'g',1:Ntrial*tTrial/tMuestreo,stm_2(sesion(j-1,i)+1:sesion(j,i),i),'m',1:Ntrial*tTrial/tMuestreo,limrand*ones(1,Ntrial*tTrial/tMuestreo),'--b');
+      plot((1:(Ntrial*tTrial))/tMuestreo,P1(:,j)'*A1max,'.-m');
+      legend("A1","A2","STM1","STM2","limrand","probabilidad");
     endif
+    plot(1:Ntrial*tTrial/tMuestreo,A1max*ones(1,Ntrial*tTrial/tMuestreo));
+    hold off
   endfor
-  plot(1:sesion(Nses,i)/4,A1max*ones(1,length(1:sesion(Nses,i)/4)))
-  plot(1:sesion(Nses,i)/4,.5*A1max*ones(1,length(1:sesion(Nses,i)/4)),'--r')
-  hold off;
 endfor
 
-%% Maximos exitos por intervalo= 10-360 - 30-120 - 40-65 - 60-60 
+
+%% Maximos exitos por tasa= 10-360 - 30-120 - 40-65 - 60-60 
 
 color = 'rgbmkmrgbk';
 figure
 hold on
 for i=1:Ntest
-  plot(1:Nses,porcentaje_coop_sesion(:,i),'Color',color(i));
-  title('Porcentaje de Cooperacion');
-  xlabel('Numero de sesion');
-  ylabel('Porcentaje');
+  plot(Fr,resp_por_segundos(:,i),'Color',color(i));
+  title('Respuestas por segundos');
+  xlabel('Tasa fija');
+  ylabel('Respuestas/segundos');
+  for j=1:Nses
+    plot(Fr(j)*ones(1,floor(resp_por_segundos(j,i)*100)+1),(0:floor(resp_por_segundos(j,i)*100))/100,'k');
+  end
+end
+hold off
+
+figure
+hold on
+for i=1:Ntest
+  plot(refuerzo(:,i),resp_por_segundos(:,i),'Color',color(i));
+  title('Respuestas y refuerzo');
+  xlabel('Refuezo/horas');
+  ylabel('Respuestas/segundos');
+  for j=1:Nses
+    plot(refuerzo(j)*ones(1,floor(resp_por_segundos(j,i)*100)+1),(0:floor(resp_por_segundos(j,i)*100))/100,'k');
+    a = strcat('Num= ',num2str(Fr(j)));
+    if j==3
+      text(refuerzo(j),-.085,a);
+    elseif j==4
+      text(refuerzo(j),-.1,a);
+    elseif j==5
+      text(refuerzo(j),-.03,a);
+    else
+      text(refuerzo(j),-.06,a);
+    end
+  end
 end
 hold off
 

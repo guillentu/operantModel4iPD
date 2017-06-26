@@ -326,7 +326,16 @@ for i=1:Ntest
   ylabel('Respuestas/segundos');
   for j=1:Nses
     plot(refuerzo(j)*ones(1,floor(resp_por_segundos(j,i)*100)+1),(0:floor(resp_por_segundos(j,i)*100))/100,'k');
-    text(refuerzo(j),-.05,"N = Fr(j)");
+    a = strcat('Num= ',num2str(Vr(j)));
+    if j==3
+      text(refuerzo(j),-.085,a);
+    elseif j==4
+      text(refuerzo(j),-.1,a);
+    elseif j==5
+      text(refuerzo(j),-.03,a);
+    else
+      text(refuerzo(j),-.06,a);
+    end
   end
 end
 hold off
