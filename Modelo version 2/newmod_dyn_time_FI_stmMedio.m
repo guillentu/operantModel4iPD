@@ -59,11 +59,11 @@ trialXsesion = zeros(Nses,Ntrial);
 terminal_sesion=zeros(Nses,1);
 nb_resp = zeros(Nses,Ntest);
 refuerzo = zeros(Nses,Ntest);
-t_ref = zeros(Nses,1)
+t_ref = zeros(Nses,1);
 %contadorP1=0;
 %contadorP2=0;
 contadorI=0;
-cum_resp = zeros(Nses,1)
+cum_resp = zeros(Nses,1);
 
 %% CALCULO DE AROUSAL MAXIMO
 %% Iteraciones de respuesta refuerzo para encotnrar el STM medio

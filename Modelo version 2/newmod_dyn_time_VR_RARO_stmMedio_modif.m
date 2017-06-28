@@ -60,6 +60,8 @@ trialXsesion = zeros(Nses,Ntrial);
 terminal_sesion=zeros(Nses,1);
 nb_resp = zeros(Nses,Ntest);
 refuerzo = zeros(Nses,Ntest);
+t_ref = zeros(Nses,1);
+cum_resp = zeros(Nses,1);
 contadorP1=0;
 contadorP2=0;
 contadorI=0;
@@ -177,6 +179,7 @@ for l = 1:Ntest  %% TESTES
           dispe=.5; %% dispercion del 50% del valor de la intervalo
           tasa=Vr(k)*(1 + dispe*(1-2*rand));
           refuerzo(k,l)++;
+          t_ref(k,i)=1;
         endif
         
       else
@@ -210,10 +213,17 @@ for l = 1:Ntest  %% TESTES
     Num = j+Num;
     Sizemat = length(A1);
     
-    for j = 1:length(palanca)
+    if palanca(1)==1
+      nb_resp(k,l)=1;
+      cum_resp(k,1)=1;
+    end
+    for j = 2:length(palanca)
       if palanca(j)==1
         %nb_coop(k-1,l)= nb_coop(k-1,l)+1;
-        nb_resp(k,l)= nb_resp(k,l)+1;
+        nb_resp(k,l)++;
+        cum_resp(k,j)=cum_resp(k,j-1)+1;
+      else
+        cum_resp(k,j)=cum_resp(k,j-1);
       end
     end
   end
@@ -360,6 +370,30 @@ for i=1:Ntest
       text(refuerzo(j),-.06,a);
     end
   end
+end
+hold off
+
+a=zeros(1,1);
+b=zeros(1,1);
+for k=1:Nses
+  c=1;
+  for i=1:length(t_ref)
+    if t_ref(k,i)==1
+      a(k,c)=i;
+      b(k,c)=cum_resp(k,i);
+      c++;
+    end
+  end
+end
+
+figure
+hold on
+for i=1:Nses
+  plot(1:length(cum_resp(i,:)),cum_resp(i,:),'Color',color(i));
+  plot(a,b,'k+');
+  title('Cumulative records');
+  xlabel('Time');
+  ylabel('Cumulative responses');
 end
 hold off
 
