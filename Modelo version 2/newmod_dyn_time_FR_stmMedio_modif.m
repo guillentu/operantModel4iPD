@@ -352,24 +352,13 @@ for i=1:Ntest
 end
 hold off
 
-a=zeros(1,1);
-b=zeros(1,1);
-for k=1:Nses
-  c=1;
-  for i=1:length(t_ref)
-    if t_ref(k,i)==1
-      a(k,c)=i;
-      b(k,c)=cum_resp(k,i);
-      c++;
-    end
-  end
-end
 
 figure
 hold on
 for i=1:Nses
   plot(1:length(cum_resp(i,:)),cum_resp(i,:),'Color',color(i));
-  plot(a,b,'k+');
+  a=find(t_ref(i,:)==1);
+  plot(a,cum_resp(i,a),'k+');
   title('Cumulative records');
   xlabel('Time');
   ylabel('Cumulative responses');
