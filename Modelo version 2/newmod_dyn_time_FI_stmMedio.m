@@ -354,23 +354,27 @@ for i=1:Ntest
 end
 hold off
 
+%a=zeros(2,2)
+%for i=1:Nses
+%  a(i)==find(t_ref(i,:)==1);
+%end
 
+aFI=0;
 figure
 hold on
 for i=1:Nses
   plot(1:Ntrial*tTrial,cum_resp(i,:),'Color',color(i));
   a=find(t_ref(i,:)==1);
-  plot(a,cum_resp(i,a),'k+');
+  aFI.num2str(i)=a;
+  plot(a(i),cum_resp(i,a(i)),'k+');
   title('Cumulative records');
   xlabel('Time');
   ylabel('Cumulative responses');
 end
 hold off
 
-%%% probl�me de temps, pas le temps de d�croitre du coup red�marre plus
-%%% haut CQFD
-%%%% CASTIGO DE TIEMPO 
-%%%% CUANTO VECES ELIGE COOPERATION
-%%% Pour chaque session r�cup�rer le nombre de coop�ration et tracer la
-%%% courbe correspondante 
+resp_por_segundosFI = resp_por_segundos;
+refuerzoFI = refuerzo;
+cum_respFI = cum_resp;
 
+save FI resp_por_segundosFI refuerzoFI aFI cum_respFI;

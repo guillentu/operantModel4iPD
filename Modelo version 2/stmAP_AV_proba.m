@@ -14,6 +14,15 @@ clear
 %% 2 - On fait varier beta - On choisit un limrand qui marche un median un
 %% qui marche pas a quelle vitesse s'eteint la stm, memoire courte - si on a plus de memoire, elle se d�cide plus vite
 
+function rf = feel(pellets)
+  rf=0;
+  if (nargin~=0)
+    rf=(12.8*(1-exp(-.25.* pellets.^(2))))+(12.8*(1-exp(-.5.* pellets)));
+  else
+    error ("Faltan parametros");
+  endif
+endfunction
+
 %% INICIALIZATION
 %%%%%% CONSTANTES DE DECAE / SUBE
 alphaAP = 0.5 ;
@@ -26,8 +35,8 @@ deltaAV = 0.125 ;
 deltaAV2 = 0.25 ;
 
 tau = 0.8 ;
-R1 = floor(10*(1-exp(-tau* 1 ))); %tiempo de refuezo para R
-R2 = floor(10*(1-exp(-tau* 2 ))); %tiempo de refuezo para T
+R1 = floor(feel(1)); %tiempo de refuezo para R
+R2 = floor(feel(2)); %tiempo de refuezo para T
 
 l1 = 20+R1; %20 = duraci�n entre trials
 l2 = 48+R2; %48 = 20 entre trials + 8 de castigo + 20 entre trials
@@ -135,7 +144,7 @@ for l = 1:Ntest
         %%% REFUERZO %%%
            %  Experimental     Oponente
         if (palanca(i-1)==1)&&(palanca(i-2)==1) %% R + 1p
-          Rf_1(i)=floor(10*(1-exp(-tau* 1 )));
+          Rf_1(i)=floor(feel(1));
           Rf_2(i)=0;
           d=Rf_1(i);
           xAP_1=[ones(1,Rf_1(i)),zeros(1,duracion(i))];
@@ -156,7 +165,7 @@ for l = 1:Ntest
           xAV_2=[ones(1,d),zeros(1,duracion(i))];
         elseif (palanca(i-1)==2)&&(palanca(i-2)==1) %% T + 2p
           Rf_1(i)=0;
-          Rf_2(i)=floor(10*(1-exp(-tau* 2 )));
+          Rf_2(i)=floor(feel(2));
           d=Rf_2(i);
           xAP_1=[zeros(1,Rf_2(i)),zeros(1,duracion(i))];
           xAP_2=[ones(1,Rf_2(i)),zeros(1,duracion(i))];
