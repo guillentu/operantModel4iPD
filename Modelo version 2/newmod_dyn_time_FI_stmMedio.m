@@ -354,19 +354,15 @@ for i=1:Ntest
 end
 hold off
 
-%a=zeros(2,2)
-%for i=1:Nses
-%  a(i)==find(t_ref(i,:)==1);
-%end
 
-aFI=0;
+
 figure
 hold on
 for i=1:Nses
   plot(1:Ntrial*tTrial,cum_resp(i,:),'Color',color(i));
   a=find(t_ref(i,:)==1);
-  aFI.num2str(i)=a;
-  plot(a(i),cum_resp(i,a(i)),'k+');
+  aFI.(num2str(i))=a;
+  plot(a,cum_resp(i,a),'k+');
   title('Cumulative records');
   xlabel('Time');
   ylabel('Cumulative responses');
@@ -377,4 +373,5 @@ resp_por_segundosFI = resp_por_segundos;
 refuerzoFI = refuerzo;
 cum_respFI = cum_resp;
 
-save FI resp_por_segundosFI refuerzoFI aFI cum_respFI;
+save FI resp_por_segundosFI refuerzoFI cum_respFI; 
+save ("-mat-binary", "aFI", "aFI");

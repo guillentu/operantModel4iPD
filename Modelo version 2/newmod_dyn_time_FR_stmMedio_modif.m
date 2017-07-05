@@ -358,12 +358,19 @@ hold on
 for i=1:Nses
   plot(1:length(cum_resp(i,:)),cum_resp(i,:),'Color',color(i));
   a=find(t_ref(i,:)==1);
+  aFR.(num2str(i))=a;
   plot(a,cum_resp(i,a),'k+');
   title('Cumulative records');
   xlabel('Time');
   ylabel('Cumulative responses');
 end
 hold off
+
+resp_por_segundosFR = resp_por_segundos;
+refuerzoFR = refuerzo;
+cum_respFR = cum_resp;
+
+save FR resp_por_segundosFR refuerzoFR aFR cum_respFR;
 
 %%% haut CQFD
 %%%% CASTIGO DE TIEMPO 

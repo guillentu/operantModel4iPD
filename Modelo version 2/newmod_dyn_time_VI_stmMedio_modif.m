@@ -359,12 +359,19 @@ hold on
 for i=1:Nses
   plot(1:Ntrial*tTrial,cum_resp(i,:),'Color',color(i));
   a=find(t_ref(i,:)==1);
+  aVI.(num2str(i))=a;
   plot(a,cum_resp(i,a),'k+');
   title('Cumulative records');
   xlabel('Time');
   ylabel('Cumulative responses');
 end
 hold off
+
+resp_por_segundosVI = resp_por_segundos;
+refuerzoVI = refuerzo;
+cum_respVI = cum_resp;
+
+save VI resp_por_segundosVI refuerzoVI aVI cum_respVI;
 
 %%% probl�me de temps, pas le temps de d�croitre du coup red�marre plus
 %%% haut CQFD
