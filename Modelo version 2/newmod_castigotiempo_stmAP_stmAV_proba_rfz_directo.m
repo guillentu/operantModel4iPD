@@ -22,8 +22,8 @@ alphaAP = 0.5 ;
 betaAP  = 0.125 ;
 alphaAV = 0.25 ;
 betaAV  = 0.125 ;
-gamma = 0.0067; %0.00134; %0.0067;  %2/1 sesiones
-deltaAP = 0.25 ;
+gamma = 0.00134; %0.00134; %0.0067;  %2/1 sesiones
+deltaAP = 0.5 ;
 deltaAV = 0.125 ;
 deltaAV2 = 0.25 ;
 
@@ -57,7 +57,7 @@ A2max = (deltaAP/gamma)*stmAP_2_medio;
 Ntrial  =  30 ;
 Nses    =  15 ;
 Ntest   =  5 ;
-saving  =  0.2 ;
+saving  =  0.8 ;
 
 %%%%%% INICIALIZACION
 palanca = zeros(2,1);
