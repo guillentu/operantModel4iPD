@@ -295,7 +295,7 @@ resp_por_segundos=nb_resp/length(palanca); %numero de respuestas dividido por el
 
 for i=1:Ntest
   for j=1:Nses
-    figure
+    h=figure
     hold on
     %plot(sesion(j,i)*ones(1,max(max(A1(:,i)))),(1:max(max(A1(:,i)))),'--k');
     %h=plot((sesion(j,i).*tMuestreo)*ones(1,max(max(A1(:,i)))),(1:max(max(A1(:,i)))),'--k');

@@ -1,7 +1,7 @@
 %% SHORT TERM MEMORY RESPONSE - REWARD
 %% Castigos
 
-%Cambiar el calculo de A1max y A2max porque ahora el refuerzo está directo
+%Cambiar el calculo de A1max y A2max porque ahora el refuerzo estï¿½ directo
 
 close all
 clc
@@ -22,7 +22,7 @@ alphaAP = 0.5 ;
 betaAP  = 0.125 ;
 alphaAV = 0.25 ;
 betaAV  = 0.125 ;
-gamma = 0.00134; %0.00134; %0.0067;  %2/1 sesiones
+gamma = 0.0067; %0.00134; %0.0067;  %2/1 sesiones
 deltaAP = 0.5 ;
 deltaAV = 0.125 ;
 deltaAV2 = 0.25 ;
